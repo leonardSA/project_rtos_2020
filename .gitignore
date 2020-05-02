@@ -3,3 +3,13 @@
 
 # Ada Library Information
 *.ali
+
+# Recovery files
+b~*
+
+# Vim
+*.swo
+*.swp
+
+# Output directory
+output
