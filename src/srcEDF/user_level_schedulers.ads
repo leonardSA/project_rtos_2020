@@ -15,6 +15,7 @@ package user_level_schedulers is
       minimal_delay  : Integer;  -- only for sporadic tasks
       next_execution : Integer;  -- only for sporadic tasks
       critical_delay : Integer;
+      start          : Integer;  -- only for aperiodic tasks
       capacity       : Integer;
       nature         : task_nature;
       status         : task_status;
@@ -32,6 +33,7 @@ package user_level_schedulers is
          critical_delay : in Integer;
          minimal_delay  : in Integer;  
          next_execution : in Integer; 
+         start          : in Integer;
          capacity       : in Integer;
          subprogram     : in run_subprogram);
       function get_number_of_task return Integer;
