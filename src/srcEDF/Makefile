@@ -1,6 +1,6 @@
 OUT_DIR=output
 CC=gnatmake -g
-EXEC=exampleEDF
+EXEC=example_edf
 
 all: compile move
 
