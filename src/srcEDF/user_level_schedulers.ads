@@ -5,12 +5,15 @@ package user_level_schedulers is
 
    max_user_level_task : constant Integer := 100;
 
-   type task_status is (task_ready, task_pended);
+   -- task_done only for aperiodic
+   type task_status is (task_ready, task_pended, task_done); 
    type task_nature is (task_periodic, task_sporadic, task_aperiodic);
 
    type tcb is record
       the_task       : user_level_task_ptr;
-      period         : Integer;
+      period         : Integer;  -- only for periodic tasks
+      minimal_delay  : Integer;  -- only for sporadic tasks
+      next_execution : Integer;  -- only for sporadic tasks
       critical_delay : Integer;
       capacity       : Integer;
       nature         : task_nature;
