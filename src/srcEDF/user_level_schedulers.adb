@@ -97,6 +97,7 @@ package body user_level_schedulers is
 
       procedure new_user_level_task
         (id         : in out Integer;
+         nature     : in task_nature;
          period     : in Integer;
          capacity   : in Integer;
          subprogram : in run_subprogram)
@@ -108,6 +109,7 @@ package body user_level_schedulers is
          end if;
 
          number_of_task        := number_of_task + 1;
+         a_tcb.nature          := nature;
          a_tcb.period          := period;
          a_tcb.capacity        := capacity;
          a_tcb.status          := task_ready;

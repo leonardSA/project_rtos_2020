@@ -6,11 +6,13 @@ package user_level_schedulers is
    max_user_level_task : constant Integer := 100;
 
    type task_status is (task_ready, task_pended);
+   type task_nature is (task_periodic, task_sporadic, task_aperiodic);
 
    type tcb is record
       the_task : user_level_task_ptr;
       period   : Integer;
       capacity : Integer;
+      nature   : task_nature;
       status   : task_status;
    end record;
 
@@ -21,6 +23,7 @@ package user_level_schedulers is
       function get_tcb (id : Integer) return tcb;
       procedure new_user_level_task
         (id         : in out Integer;
+         nature     : in task_nature;
          period     : in Integer;
          capacity   : in Integer;
          subprogram : in run_subprogram);
