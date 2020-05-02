@@ -4,11 +4,11 @@ package body user_level_schedulers is
 
    -- Rate monotonic scheduling
    --
-   procedure rate_monotonic_schedule (duration_in_time_unit : Integer) is
-      a_tcb           : tcb;
-      no_ready_task   : Boolean;
-      elected_task    : tcb;
-      smallest_period : Integer;
+   procedure earliest_deadline_first_schedule (duration_in_time_unit : Integer) is
+      a_tcb             : tcb;
+      no_ready_task     : Boolean;
+      elected_task      : tcb;
+      earliest_deadline : Integer;
    begin
 
       -- Loop on tcbs, and select tasks which are ready
@@ -24,8 +24,10 @@ package body user_level_schedulers is
             a_tcb := user_level_scheduler.get_tcb (i);
             if (a_tcb.status = task_ready) then
                no_ready_task := False;
-               if a_tcb.period < smallest_period then
-                  smallest_period := a_tcb.period;
+               if user_level_scheduler.get_current_time 
+                  + a_tcb.period < smallest_period then
+                  smallest_period := user_level_scheduler.get_current_time 
+                                     + a_tcb.period;
                   elected_task    := a_tcb;
                end if;
             end if;
@@ -68,7 +70,7 @@ package body user_level_schedulers is
 
       end loop;
 
-   end rate_monotonic_schedule;
+   end earliest_deadline_first_schedule;
 
    procedure abort_tasks is
       a_tcb : tcb;
