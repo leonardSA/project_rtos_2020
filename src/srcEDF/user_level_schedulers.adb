@@ -18,16 +18,16 @@ package body user_level_schedulers is
 
         -- Find the next task to run
         --
-         no_ready_task   := True;
-         smallest_period := Integer'Last;
+         no_ready_task     := True;
+         earliest_deadline := Integer'Last;
          for i in 1 .. user_level_scheduler.get_number_of_task loop
             a_tcb := user_level_scheduler.get_tcb (i);
             if (a_tcb.status = task_ready) then
                no_ready_task := False;
                if user_level_scheduler.get_current_time 
-                  + a_tcb.period < smallest_period then
-                  smallest_period := user_level_scheduler.get_current_time 
-                                     + a_tcb.period;
+                  + a_tcb.critical_delay < earliest_deadline then
+                  earliest_deadline := user_level_scheduler.get_current_time 
+                                     + a_tcb.critical_delay;
                   elected_task    := a_tcb;
                end if;
             end if;
@@ -98,11 +98,12 @@ package body user_level_schedulers is
       end get_tcb;
 
       procedure new_user_level_task
-        (id         : in out Integer;
-         nature     : in task_nature;
-         period     : in Integer;
-         capacity   : in Integer;
-         subprogram : in run_subprogram)
+        (id             : in out Integer;
+         nature         : in task_nature;
+         period         : in Integer;
+         critical_delay : in Integer;
+         capacity       : in Integer;
+         subprogram     : in run_subprogram)
       is
          a_tcb : tcb;
       begin
@@ -113,6 +114,7 @@ package body user_level_schedulers is
          number_of_task        := number_of_task + 1;
          a_tcb.nature          := nature;
          a_tcb.period          := period;
+         a_tcb.critical_delay  := critical_delay;  
          a_tcb.capacity        := capacity;
          a_tcb.status          := task_ready;
          a_tcb.the_task        :=
