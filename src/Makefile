@@ -1,16 +1,5 @@
-OUT_DIR=output
-CC=gnatmake -g
-EXEC=example
-
-all: compile move
-
 compile:
-	$(CC) $(EXEC)
-
-move:
-	mv $(EXEC) ../$(OUT_DIR)
+	for d in `ls`; do make -C $$d ; done
 
 clean:
-	rm b~*
-	gnatclean -c $(EXEC)
-	
+	for d in `ls`; do make clean -C $$d ; done
