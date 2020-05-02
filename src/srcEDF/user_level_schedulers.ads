@@ -30,6 +30,8 @@ package user_level_schedulers is
          nature         : in task_nature;
          period         : in Integer;
          critical_delay : in Integer;
+         minimal_delay  : in Integer;  
+         next_execution : in Integer; 
          capacity       : in Integer;
          subprogram     : in run_subprogram);
       function get_number_of_task return Integer;

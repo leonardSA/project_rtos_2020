@@ -102,6 +102,8 @@ package body user_level_schedulers is
          nature         : in task_nature;
          period         : in Integer;
          critical_delay : in Integer;
+         minimal_delay  : in Integer;  
+         next_execution : in Integer; 
          capacity       : in Integer;
          subprogram     : in run_subprogram)
       is
@@ -111,9 +113,22 @@ package body user_level_schedulers is
             raise Constraint_Error;
          end if;
 
+         if (nature = task_periodic) then
+            a_tcb.period         := period;
+            a_tcb.minimal_delay  := -1;
+            a_tcb.next_execution := -1;
+         elsif (nature = task_aperiodic) then
+            a_tcb.period         := -1;
+            a_tcb.minimal_delay  := minimal_delay;
+            a_tcb.next_execution := next_execution;
+         else
+            a_tcb.period         := -1;
+            a_tcb.minimal_delay  := -1;
+            a_tcb.next_execution := -1;
+         end if;
+
          number_of_task        := number_of_task + 1;
          a_tcb.nature          := nature;
-         a_tcb.period          := period;
          a_tcb.critical_delay  := critical_delay;  
          a_tcb.capacity        := capacity;
          a_tcb.status          := task_ready;
