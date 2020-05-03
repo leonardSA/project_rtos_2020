@@ -22,13 +22,32 @@ package body user_level_schedulers is
          earliest_deadline := Integer'Last;
          for i in 1 .. user_level_scheduler.get_number_of_task loop
             a_tcb := user_level_scheduler.get_tcb (i);
-            if (a_tcb.status = task_ready) then
-               no_ready_task := False;
-               if user_level_scheduler.get_current_time 
-                  + a_tcb.critical_delay < earliest_deadline then
-                  earliest_deadline := user_level_scheduler.get_current_time 
-                                     + a_tcb.critical_delay;
-                  elected_task    := a_tcb;
+            -- Periodic tasks
+            --
+            if (a_tcb.nature = task_periodic) then
+               if (a_tcb.status = task_ready) then
+                  no_ready_task := False;
+                  if (user_level_scheduler.get_current_time 
+                     + a_tcb.critical_delay < earliest_deadline) then
+                     earliest_deadline := user_level_scheduler.get_current_time 
+                                        + a_tcb.critical_delay;
+                     elected_task      := a_tcb;
+                  end if;
+               end if;
+            -- Aperiodic tasks
+            --
+            elsif (a_tcb.nature = task_aperiodic) then
+               if (a_tcb.start = user_level_scheduler.get_current_time) then
+                  a_tcb.status := task_ready;
+               end if;
+               if (a_tcb.status = task_ready) then
+                  no_ready_task := False;
+                  if (a_tcb.start 
+                     + a_tcb.critical_delay < earliest_deadline) then
+                     earliest_deadline := a_tcb.start
+                                        + a_tcb.critical_delay;
+                     elected_task      := a_tcb;
+                  end if;
                end if;
             end if;
          end loop;
@@ -55,15 +74,23 @@ package body user_level_schedulers is
          for i in 1 .. user_level_scheduler.get_number_of_task loop
             a_tcb := user_level_scheduler.get_tcb (i);
             if (a_tcb.status = task_pended) then
-               if user_level_scheduler.get_current_time mod a_tcb.period =
-                  0
-               then
-                  Put_Line
-                    ("Task" &
-                     Integer'Image (i) &
-                     " is released at time " &
-                     Integer'Image (user_level_scheduler.get_current_time));
-                  user_level_scheduler.set_task_status (i, task_ready);
+               if (a_tcb.nature = task_periodic) then
+                  if user_level_scheduler.get_current_time mod a_tcb.period = 0
+                  then
+                     Put_Line
+                       ("Periodic task" &
+                        Integer'Image (i) &
+                        " is released at time " &
+                        Integer'Image (user_level_scheduler.get_current_time));
+                     user_level_scheduler.set_task_status (i, task_ready);
+                  end if;
+               elsif (a_tcb.nature = task_aperiodic) then
+                     Put_Line
+                       ("Aperiodic task" &
+                        Integer'Image (i) &
+                        " is done at time " &
+                        Integer'Image (user_level_scheduler.get_current_time));
+                     user_level_scheduler.set_task_status (i, task_done);
                end if;
             end if;
          end loop;
