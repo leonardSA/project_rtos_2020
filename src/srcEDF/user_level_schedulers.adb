@@ -142,6 +142,11 @@ package body user_level_schedulers is
          tcbs (id).status := s;
       end set_task_status;
 
+      procedure set_task_next_execution (id : Integer; t : Integer) is
+      begin
+         tcbs (id).next_execution := t;
+      end set_task_next_execution;
+
       function get_tcb (id : Integer) return tcb is
       begin
          return tcbs (id);
