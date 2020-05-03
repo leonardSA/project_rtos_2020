@@ -41,6 +41,11 @@ package body user_level_schedulers is
             --
             elsif (a_tcb.nature = task_aperiodic) then
                if (a_tcb.start = user_level_scheduler.get_current_time) then
+                   Put_Line 
+                     ("Aperiodic task" &
+                     Integer'Image (i) &
+                     " is released at time " &
+                     Integer'Image (user_level_scheduler.get_current_time));
                   a_tcb.status := task_ready;
                end if;
                if (a_tcb.status = task_ready) then
@@ -52,9 +57,17 @@ package body user_level_schedulers is
                      elected_task      := a_tcb;
                   end if;
                end if;
+            -- Sporadic tasks
+            --
             else
                if (a_tcb.next_execution = user_level_scheduler.get_current_time) 
-               then a_tcb.status := task_ready;
+               then 
+                  Put_Line
+                    ("Sporadic task" &
+                     Integer'Image (i) &
+                     " is released at time " &
+                     Integer'Image (user_level_scheduler.get_current_time));
+                  a_tcb.status := task_ready;
                end if;
                if (a_tcb.status = task_ready and rand > 66.6) then
                   no_ready_task := False;
@@ -110,6 +123,11 @@ package body user_level_schedulers is
                else
                   if (user_level_scheduler.get_current_time
                      > a_tcb.next_execution) then
+                     Put_Line
+                       ("Sporadic task" &
+                        Integer'Image (i) &
+                        " is done at time " &
+                        Integer'Image (user_level_scheduler.get_current_time));
                      user_level_scheduler.set_task_next_execution (
                         i, user_level_scheduler.get_current_time 
                         + a_tcb.minimal_delay);
