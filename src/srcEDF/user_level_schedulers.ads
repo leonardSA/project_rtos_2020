@@ -34,7 +34,6 @@ package user_level_schedulers is
          period         : in Integer;
          critical_delay : in Integer;
          minimal_delay  : in Integer;  
-         next_execution : in Integer; 
          start          : in Integer;
          capacity       : in Integer;
          subprogram     : in run_subprogram);

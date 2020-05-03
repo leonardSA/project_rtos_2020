@@ -158,7 +158,6 @@ package body user_level_schedulers is
          period         : in Integer;
          critical_delay : in Integer;
          minimal_delay  : in Integer;  
-         next_execution : in Integer; 
          start          : in Integer;
          capacity       : in Integer;
          subprogram     : in run_subprogram)
@@ -175,12 +174,12 @@ package body user_level_schedulers is
             a_tcb.next_execution := -1;
          elsif (nature = task_aperiodic) then
             a_tcb.period         := -1;
-            a_tcb.minimal_delay  := minimal_delay;
-            a_tcb.next_execution := next_execution;
-         else
-            a_tcb.period         := -1;
             a_tcb.minimal_delay  := -1;
             a_tcb.next_execution := -1;
+         else -- nature = task_sporaidc
+            a_tcb.period         := -1;
+            a_tcb.minimal_delay  := minimal_delay;
+            a_tcb.next_execution := start;
          end if;
 
          if (start = 0) then 
