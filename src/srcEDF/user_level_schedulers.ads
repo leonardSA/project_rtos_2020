@@ -6,8 +6,7 @@ package user_level_schedulers is
 
    max_user_level_task        : constant Integer := 100;
 
-   -- task_done only for aperiodic
-   type task_status is (task_ready, task_pended, task_done); 
+   type task_status is (task_ready, task_pended);
    type task_nature is (task_periodic, task_sporadic, task_aperiodic);
 
    type tcb is record
@@ -49,7 +48,8 @@ package user_level_schedulers is
       tcbs              : tcb_type;
       number_of_task    : Integer := 0;
       current_time      : Integer := 0;
-      random_generator  : Generator;
+      random_generator  : Generator;      -- generator for randomizing sporadic
+                                          -- task wake up
    end user_level_scheduler;
 
    -- Main user level scheduler entry points

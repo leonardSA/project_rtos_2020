@@ -4,7 +4,7 @@ with GNAT.OS_Lib;                use GNAT.OS_Lib;
 
 package body user_level_schedulers is
 
-   -- Rate monotonic scheduling
+   -- Earliest deadline first scheduling
    --
    procedure earliest_deadline_first_schedule (duration_in_time_unit : Integer) is
       a_tcb                : tcb;
@@ -16,7 +16,7 @@ package body user_level_schedulers is
    begin
 
       -- Loop on tcbs, and select tasks which are ready
-      -- and which have smallest periods
+      -- and which have the earliest deadline
       --
       loop
 
@@ -102,13 +102,16 @@ package body user_level_schedulers is
                         Integer'Image (i) &
                         " is released at time " &
                         Integer'Image (user_level_scheduler.get_current_time));
+
                      user_level_scheduler.set_task_start  
                         (i, user_level_scheduler.get_current_time);
                      user_level_scheduler.set_task_status (i, task_ready);
+                     -- Reset next execution
                      user_level_scheduler.set_task_next_execution 
                         (i, user_level_scheduler.get_current_time 
                             + a_tcb.minimal_delay);
-                  elsif (a_tcb.start <= user_level_scheduler.get_current_time) then
+                  elsif (a_tcb.start <= user_level_scheduler.get_current_time) 
+                  then
                      user_level_scheduler.set_task_next_execution 
                         (i, user_level_scheduler.get_current_time + 1);
                   end if;
@@ -172,6 +175,7 @@ package body user_level_schedulers is
             raise Constraint_Error;
          end if;
 
+         -- unused by task of given nature => set to -1
          if (nature = task_periodic) then
             a_tcb.period         := period;
             a_tcb.minimal_delay  := -1;
@@ -218,6 +222,8 @@ package body user_level_schedulers is
          current_time := current_time + 1;
       end next_time;
 
+      -- Returns true if a deadline was missed
+      --
       function deadline_missed return Boolean is
          a_tcb : tcb;
       begin
@@ -240,13 +246,16 @@ package body user_level_schedulers is
             return False;
       end deadline_missed;
 
+      -- Generate random number in [0; 100] assigned to parameter rand
+      --
       procedure generate_random (rand : out Float) is
          r : constant Float := Random(random_generator);
       begin
          rand := 100.0 * r;
       end generate_random;
 
-
+      -- Print task election history
+      --
       procedure print_history (elected_task_history : task_history) is
       begin
          Put_Line ("TIME, TASK_ID");
