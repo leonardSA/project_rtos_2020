@@ -6,11 +6,12 @@ package body user_level_schedulers is
    -- Rate monotonic scheduling
    --
    procedure earliest_deadline_first_schedule (duration_in_time_unit : Integer) is
-      a_tcb             : tcb;
-      no_ready_task     : Boolean;
-      elected_task      : tcb;
-      earliest_deadline : Integer;
-      rand              : Float;
+      a_tcb                : tcb;
+      no_ready_task        : Boolean;
+      elected_task         : tcb;
+      earliest_deadline    : Integer;
+      rand                 : Float;
+      elected_task_history : task_history (0 .. duration_in_time_unit);
    begin
 
       -- Loop on tcbs, and select tasks which are ready
@@ -32,6 +33,8 @@ package body user_level_schedulers is
                   no_ready_task := False;
                   if (a_tcb.start + a_tcb.critical_delay < earliest_deadline) 
                   then
+                     elected_task_history 
+                        (user_level_scheduler.get_current_time) := i;
                      earliest_deadline := user_level_scheduler.get_current_time 
                                         + a_tcb.critical_delay;
                      elected_task      := a_tcb;
@@ -52,6 +55,8 @@ package body user_level_schedulers is
                   no_ready_task := False;
                   if (a_tcb.start 
                      + a_tcb.critical_delay < earliest_deadline) then
+                     elected_task_history 
+                        (user_level_scheduler.get_current_time) := i;
                      earliest_deadline := a_tcb.start
                                         + a_tcb.critical_delay;
                      elected_task      := a_tcb;
@@ -73,6 +78,8 @@ package body user_level_schedulers is
                   no_ready_task := False;
                   if (user_level_scheduler.get_current_time
                      + a_tcb.critical_delay < earliest_deadline) then
+                     elected_task_history 
+                        (user_level_scheduler.get_current_time) := i;
                      earliest_deadline := user_level_scheduler.get_current_time
                                           + a_tcb.critical_delay;
                      elected_task      := a_tcb;
@@ -87,6 +94,7 @@ package body user_level_schedulers is
             elected_task.the_task.wait_for_processor;
             elected_task.the_task.release_processor;
          else
+            elected_task_history (user_level_scheduler.get_current_time) := 0;
             Put_Line
               ("No task to run at time " &
                Integer'Image (user_level_scheduler.get_current_time));
@@ -137,8 +145,9 @@ package body user_level_schedulers is
                end if;
             end if;
          end loop;
-
       end loop;
+
+      user_level_scheduler.print_history (elected_task_history);
 
    end earliest_deadline_first_schedule;
 
@@ -245,6 +254,17 @@ package body user_level_schedulers is
       begin
          rand := 100.0 * r;
       end generate_random;
+
+
+      procedure print_history (elected_task_history : task_history) is
+      begin
+         Put_Line ("TIME, TASK_ID");
+         for i in elected_task_history'Range loop
+            Put_Line(
+               Integer'Image (i) & "," 
+               & Integer'Image(elected_task_history (i)));
+         end loop;
+      end print_history;
 
    end user_level_scheduler;
 

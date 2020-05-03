@@ -4,7 +4,7 @@ with user_level_tasks;           use user_level_tasks;
 
 package user_level_schedulers is
 
-   max_user_level_task : constant Integer := 100;
+   max_user_level_task        : constant Integer := 100;
 
    -- task_done only for aperiodic
    type task_status is (task_ready, task_pended, task_done); 
@@ -23,6 +23,7 @@ package user_level_schedulers is
    end record;
 
    type tcb_type is array (1 .. max_user_level_task) of tcb;
+   type task_history is array (Integer range <>) of Integer;
 
    protected user_level_scheduler is
       procedure set_task_status (id : Integer; s : task_status);
@@ -42,6 +43,7 @@ package user_level_schedulers is
       function get_current_time return Integer;
       procedure next_time;
       procedure generate_random (rand : out Float);
+      procedure print_history (elected_task_history : task_history);
    private
       tcbs              : tcb_type;
       number_of_task    : Integer := 0;
