@@ -6,4 +6,8 @@ package my_subprograms is
    procedure T2;
    procedure T3;
 
+   protected my_subprograms is
+      procedure message (id : Integer);
+   end my_subprograms;
+
 end my_subprograms;
