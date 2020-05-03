@@ -42,6 +42,7 @@ package user_level_schedulers is
       function get_number_of_task return Integer;
       function get_current_time return Integer;
       procedure next_time;
+      function deadline_missed return Boolean;
       procedure generate_random (rand : out Float);
       procedure print_history (elected_task_history : task_history);
    private

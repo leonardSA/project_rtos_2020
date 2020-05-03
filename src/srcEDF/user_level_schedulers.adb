@@ -1,5 +1,6 @@
 with Text_IO;                    use Text_IO;
 with Ada.Numerics.Float_Random;  use Ada.Numerics.Float_Random;
+with GNAT.OS_Lib;                use GNAT.OS_Lib;
 
 package body user_level_schedulers is
 
@@ -50,7 +51,9 @@ package body user_level_schedulers is
                Integer'Image (user_level_scheduler.get_current_time));
          end if;
 
-         -- TODO stop tasks that has overlaped deadline
+         if (user_level_scheduler.deadline_missed) then
+            exit;
+         end if;
 
          -- Go to the next unit of time
          --
@@ -215,6 +218,27 @@ package body user_level_schedulers is
          current_time := current_time + 1;
       end next_time;
 
+      function deadline_missed return Boolean is
+         a_tcb : tcb;
+      begin
+            for i in 1 .. number_of_task loop
+               a_tcb := tcbs(i);
+               if (a_tcb.status = task_ready
+                  and a_tcb.start + a_tcb.critical_delay <= get_current_time) 
+               then
+                  Put_Line 
+                       ("Task" &
+                        Integer'Image (i) &
+                        " missed deadline" &
+                        Integer'Image (a_tcb.start + a_tcb.critical_delay) &
+                        " at time" &
+                        Integer'Image (user_level_scheduler.get_current_time));
+                  return True;
+               end if;
+            end loop;
+
+            return False;
+      end deadline_missed;
 
       procedure generate_random (rand : out Float) is
          r : constant Float := Random(random_generator);
