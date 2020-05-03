@@ -251,6 +251,8 @@ package body user_level_schedulers is
       begin
          Put_Line ("TIME, TASK_ID");
          for i in elected_task_history'Range loop
+            -- if program aborted
+            exit when i > user_level_scheduler.get_current_time;
             Put_Line(
                Integer'Image (i) & "," 
                & Integer'Image(elected_task_history (i)));
