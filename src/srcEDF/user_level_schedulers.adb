@@ -17,9 +17,10 @@ package body user_level_schedulers is
       -- and which have smallest periods
       --
       loop
+         user_level_scheduler.generate_random (rand);
 
-        -- Find the next task to run
-        --
+         -- Find the next task to run
+         --
          no_ready_task     := True;
          earliest_deadline := Integer'Last;
          for i in 1 .. user_level_scheduler.get_number_of_task loop
@@ -48,6 +49,19 @@ package body user_level_schedulers is
                      + a_tcb.critical_delay < earliest_deadline) then
                      earliest_deadline := a_tcb.start
                                         + a_tcb.critical_delay;
+                     elected_task      := a_tcb;
+                  end if;
+               end if;
+            else
+               if (a_tcb.next_execution = user_level_scheduler.get_current_time) 
+               then a_tcb.status := task_ready;
+               end if;
+               if (a_tcb.status = task_ready and rand > 66.6) then
+                  no_ready_task := False;
+                  if (user_level_scheduler.get_current_time
+                     + a_tcb.critical_delay < earliest_deadline) then
+                     earliest_deadline := user_level_scheduler.get_current_time
+                                          + a_tcb.critical_delay;
                      elected_task      := a_tcb;
                   end if;
                end if;
@@ -93,6 +107,13 @@ package body user_level_schedulers is
                         " is done at time " &
                         Integer'Image (user_level_scheduler.get_current_time));
                      user_level_scheduler.set_task_status (i, task_done);
+               else
+                  if (user_level_scheduler.get_current_time
+                     > a_tcb.next_execution) then
+                     user_level_scheduler.set_task_next_execution (
+                        i, user_level_scheduler.get_current_time 
+                        + a_tcb.minimal_delay);
+                  end if;
                end if;
             end if;
          end loop;
