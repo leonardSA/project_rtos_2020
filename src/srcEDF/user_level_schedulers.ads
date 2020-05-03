@@ -16,7 +16,7 @@ package user_level_schedulers is
       minimal_delay  : Integer;  -- only for sporadic tasks
       next_execution : Integer;  -- only for sporadic tasks
       critical_delay : Integer;
-      start          : Integer;  -- only for aperiodic tasks
+      start          : Integer;
       capacity       : Integer;
       nature         : task_nature;
       status         : task_status;
@@ -26,7 +26,8 @@ package user_level_schedulers is
 
    protected user_level_scheduler is
       procedure set_task_status (id : Integer; s : task_status);
-      procedure set_task_next_execution(id : Integer; t : Integer);
+      procedure set_task_next_execution (id : Integer; t : Integer);
+      procedure set_task_start (id : Integer; t : Integer);
       function get_tcb (id : Integer) return tcb;
       procedure new_user_level_task
         (id             : in out Integer;

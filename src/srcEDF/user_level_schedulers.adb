@@ -30,8 +30,8 @@ package body user_level_schedulers is
             if (a_tcb.nature = task_periodic) then
                if (a_tcb.status = task_ready) then
                   no_ready_task := False;
-                  if (user_level_scheduler.get_current_time 
-                     + a_tcb.critical_delay < earliest_deadline) then
+                  if (a_tcb.start + a_tcb.critical_delay < earliest_deadline) 
+                  then
                      earliest_deadline := user_level_scheduler.get_current_time 
                                         + a_tcb.critical_delay;
                      elected_task      := a_tcb;
@@ -111,6 +111,8 @@ package body user_level_schedulers is
                         Integer'Image (i) &
                         " is released at time " &
                         Integer'Image (user_level_scheduler.get_current_time));
+                     user_level_scheduler.set_task_start  
+                        (i, user_level_scheduler.get_current_time);
                      user_level_scheduler.set_task_status (i, task_ready);
                   end if;
                elsif (a_tcb.nature = task_aperiodic) then
@@ -165,6 +167,11 @@ package body user_level_schedulers is
          tcbs (id).next_execution := t;
       end set_task_next_execution;
 
+      procedure set_task_start (id : Integer; t : Integer) is
+      begin
+         tcbs (id).start := t; 
+      end set_task_start;
+
       function get_tcb (id : Integer) return tcb is
       begin
          return tcbs (id);
@@ -207,6 +214,7 @@ package body user_level_schedulers is
          end if;
 
          number_of_task        := number_of_task + 1;
+         a_tcb.start           := start;
          a_tcb.nature          := nature;
          a_tcb.critical_delay  := critical_delay;  
          a_tcb.capacity        := capacity;
