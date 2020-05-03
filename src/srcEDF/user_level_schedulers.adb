@@ -1,4 +1,5 @@
-with Text_IO; use Text_IO;
+with Text_IO;                    use Text_IO;
+with Ada.Numerics.Float_Random;  use Ada.Numerics.Float_Random;
 
 package body user_level_schedulers is
 
@@ -9,6 +10,7 @@ package body user_level_schedulers is
       no_ready_task     : Boolean;
       elected_task      : tcb;
       earliest_deadline : Integer;
+      rand              : Float;
    begin
 
       -- Loop on tcbs, and select tasks which are ready
@@ -185,6 +187,13 @@ package body user_level_schedulers is
       begin
          current_time := current_time + 1;
       end next_time;
+
+
+      procedure generate_random (rand : out Float) is
+         r : constant Float := Random(random_generator);
+      begin
+         rand := 100.0 * r;
+      end generate_random;
 
    end user_level_scheduler;
 

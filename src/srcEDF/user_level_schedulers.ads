@@ -1,5 +1,6 @@
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with user_level_tasks;      use user_level_tasks;
+with Ada.Strings.Unbounded;      use Ada.Strings.Unbounded;
+with Ada.Numerics.Float_Random;  use Ada.Numerics.Float_Random;
+with user_level_tasks;           use user_level_tasks;
 
 package user_level_schedulers is
 
@@ -39,10 +40,12 @@ package user_level_schedulers is
       function get_number_of_task return Integer;
       function get_current_time return Integer;
       procedure next_time;
+      procedure generate_random (rand : out Float);
    private
-      tcbs           : tcb_type;
-      number_of_task : Integer := 0;
-      current_time   : Integer := 0;
+      tcbs              : tcb_type;
+      number_of_task    : Integer := 0;
+      current_time      : Integer := 0;
+      random_generator  : Generator;
    end user_level_scheduler;
 
    -- Main user level scheduler entry points
