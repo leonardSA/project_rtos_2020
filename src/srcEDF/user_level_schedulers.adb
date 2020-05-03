@@ -18,7 +18,6 @@ package body user_level_schedulers is
       -- and which have smallest periods
       --
       loop
-         user_level_scheduler.generate_random (rand);
 
          -- Find the next task to run
          --
@@ -26,65 +25,16 @@ package body user_level_schedulers is
          earliest_deadline := Integer'Last;
          for i in 1 .. user_level_scheduler.get_number_of_task loop
             a_tcb := user_level_scheduler.get_tcb (i);
-            -- Periodic tasks
-            --
-            if (a_tcb.nature = task_periodic) then
-               if (a_tcb.status = task_ready) then
-                  no_ready_task := False;
-                  if (a_tcb.start + a_tcb.critical_delay < earliest_deadline) 
-                  then
-                     elected_task_history 
-                        (user_level_scheduler.get_current_time) := i;
-                     earliest_deadline := user_level_scheduler.get_current_time 
-                                        + a_tcb.critical_delay;
-                     elected_task      := a_tcb;
-                  end if;
-               end if;
-            -- Aperiodic tasks
-            --
-            elsif (a_tcb.nature = task_aperiodic) then
-               if (a_tcb.start = user_level_scheduler.get_current_time) then
-                   Put_Line 
-                     ("Aperiodic task" &
-                     Integer'Image (i) &
-                     " is released at time " &
-                     Integer'Image (user_level_scheduler.get_current_time));
-                  a_tcb.status := task_ready;
-               end if;
-               if (a_tcb.status = task_ready) then
-                  no_ready_task := False;
-                  if (a_tcb.start 
-                     + a_tcb.critical_delay < earliest_deadline) then
-                     elected_task_history 
-                        (user_level_scheduler.get_current_time) := i;
-                     earliest_deadline := a_tcb.start
-                                        + a_tcb.critical_delay;
-                     elected_task      := a_tcb;
-                  end if;
-               end if;
-            -- Sporadic tasks
-            --
-            else
-               if (a_tcb.next_execution = user_level_scheduler.get_current_time) 
-               then 
-                  Put_Line
-                    ("Sporadic task" &
-                     Integer'Image (i) &
-                     " is released at time " &
-                     Integer'Image (user_level_scheduler.get_current_time));
-                  a_tcb.status := task_ready;
-               end if;
-               if (a_tcb.status = task_ready and rand > 66.6) then
-                  no_ready_task := False;
-                  if (user_level_scheduler.get_current_time
-                     + a_tcb.critical_delay < earliest_deadline) then
-                     elected_task_history 
-                        (user_level_scheduler.get_current_time) := i;
-                     earliest_deadline := user_level_scheduler.get_current_time
-                                          + a_tcb.critical_delay;
-                     elected_task      := a_tcb;
-                  end if;
-               end if;
+            if (a_tcb.status = task_ready) then
+                no_ready_task := False;
+                if (a_tcb.start + a_tcb.critical_delay < earliest_deadline) 
+                then
+                   elected_task_history 
+                      (user_level_scheduler.get_current_time) := i;
+                   earliest_deadline := user_level_scheduler.get_current_time 
+                                      + a_tcb.critical_delay;
+                   elected_task      := a_tcb;
+                end if;
             end if;
          end loop;
 
@@ -100,17 +50,21 @@ package body user_level_schedulers is
                Integer'Image (user_level_scheduler.get_current_time));
          end if;
 
+         -- TODO stop tasks that has overlaped deadline
+
          -- Go to the next unit of time
          --
          user_level_scheduler.next_time;
          exit when user_level_scheduler.get_current_time >
                    duration_in_time_unit;
 
-         -- release periodic tasks
+         -- Release tasks
          --
          for i in 1 .. user_level_scheduler.get_number_of_task loop
             a_tcb := user_level_scheduler.get_tcb (i);
             if (a_tcb.status = task_pended) then
+               -- Release for periodic
+               --
                if (a_tcb.nature = task_periodic) then
                   if user_level_scheduler.get_current_time mod a_tcb.period = 0
                   then
@@ -123,24 +77,37 @@ package body user_level_schedulers is
                         (i, user_level_scheduler.get_current_time);
                      user_level_scheduler.set_task_status (i, task_ready);
                   end if;
+               -- Release for aperiodic
+               --
                elsif (a_tcb.nature = task_aperiodic) then
-                     Put_Line
-                       ("Aperiodic task" &
+                  if (a_tcb.start = user_level_scheduler.get_current_time) then
+                      Put_Line 
+                        ("Aperiodic task" &
                         Integer'Image (i) &
-                        " is done at time " &
+                        " is released at time " &
                         Integer'Image (user_level_scheduler.get_current_time));
-                     user_level_scheduler.set_task_status (i, task_done);
-               else
-                  if (user_level_scheduler.get_current_time
-                     > a_tcb.next_execution) then
+                     user_level_scheduler.set_task_status (i, task_ready);
+                  end if;
+               -- Release for sporadic
+               --
+               elsif (a_tcb.nature = task_sporadic) then
+                  user_level_scheduler.generate_random (rand);
+                  if (rand < 66.6 and a_tcb.next_execution 
+                           = user_level_scheduler.get_current_time) then 
                      Put_Line
                        ("Sporadic task" &
                         Integer'Image (i) &
-                        " is done at time " &
+                        " is released at time " &
                         Integer'Image (user_level_scheduler.get_current_time));
-                     user_level_scheduler.set_task_next_execution (
-                        i, user_level_scheduler.get_current_time 
-                        + a_tcb.minimal_delay);
+                     user_level_scheduler.set_task_start  
+                        (i, user_level_scheduler.get_current_time);
+                     user_level_scheduler.set_task_status (i, task_ready);
+                     user_level_scheduler.set_task_next_execution 
+                        (i, user_level_scheduler.get_current_time 
+                            + a_tcb.minimal_delay);
+                  elsif (a_tcb.start <= user_level_scheduler.get_current_time) then
+                     user_level_scheduler.set_task_next_execution 
+                        (i, user_level_scheduler.get_current_time + 1);
                   end if;
                end if;
             end if;
@@ -210,7 +177,7 @@ package body user_level_schedulers is
             a_tcb.period         := -1;
             a_tcb.minimal_delay  := -1;
             a_tcb.next_execution := -1;
-         else -- nature = task_sporaidc
+         else -- nature = task_sporadic
             a_tcb.period         := -1;
             a_tcb.minimal_delay  := minimal_delay;
             a_tcb.next_execution := start;
