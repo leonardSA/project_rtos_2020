@@ -145,21 +145,20 @@ package body user_level_schedulers is
             a_tcb.period         := period;
             a_tcb.minimal_delay  := -1;
             a_tcb.next_execution := -1;
-            a_tcb.start          := -1;
-            a_tcb.status := task_ready;
          elsif (nature = task_aperiodic) then
             a_tcb.period         := -1;
             a_tcb.minimal_delay  := minimal_delay;
             a_tcb.next_execution := next_execution;
-            a_tcb.start          := start;
-            if (start = 0) then a_tcb.status := task_ready; 
-                           else a_tcb.status := task_pended; end if;
          else
             a_tcb.period         := -1;
             a_tcb.minimal_delay  := -1;
             a_tcb.next_execution := -1;
-            a_tcb.start          := -1;
-            a_tcb.status := task_ready;
+         end if;
+
+         if (start = 0) then 
+            a_tcb.status := task_ready; 
+         else 
+            a_tcb.status := task_pended; 
          end if;
 
          number_of_task        := number_of_task + 1;
