@@ -5,7 +5,7 @@ with user_level_tasks;      use user_level_tasks;
 
 with my_subprograms; use my_subprograms;
 
-procedure exampleRM is
+procedure example_rm is
 
 begin
    -- Creation des taches
@@ -17,4 +17,4 @@ begin
    rate_monotonic_schedule (29);
    abort_tasks;
 
-end exampleRM;
+end example_rm;
