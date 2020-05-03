@@ -3,10 +3,15 @@ OUT_DIR=output
 
 .PHONY: output
 
-make: output
+all: compile
+
+compile: output
 	make -C $(SRC_DIR)
 
-output:
+log: compile
+	cd $(OUT_DIR); for e in `ls -I "*.log"`; do ./$$e > $$e.log ; done
+
+output: compile
 	if [ ! -d $(OUT_DIR) ]; then mkdir $(OUT_DIR) ; fi
 
 clean:
