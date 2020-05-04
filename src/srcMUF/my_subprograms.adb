@@ -24,16 +24,9 @@ package body my_subprograms is
       procedure message (id : Integer) is
          a_tcb : constant tcb := user_level_scheduler.get_tcb (id);
       begin
-         if (a_tcb.nature = task_periodic) then
-            Put("Periodic task");
-         elsif (a_tcb.nature = task_aperiodic) then
-            Put("Aperiodic task");
-         else
-            Put("Sporadic task");
-         end if;
-
          Put_Line
-            (Integer'Image (id) &
+            ("Task" & 
+            Integer'Image (id) &
             " is running at time" &
             Integer'Image (user_level_scheduler.get_current_time));
       end message;
