@@ -58,6 +58,10 @@ package body user_level_schedulers is
             end if;
          end loop;
 
+         if (user_level_scheduler.not_enough_cpu_time) then
+            exit;
+         end if;
+
          -- Run the task
          --
          if not no_ready_task then
@@ -84,7 +88,6 @@ package body user_level_schedulers is
          --
          for i in 1 .. user_level_scheduler.get_number_of_task loop
             a_tcb := user_level_scheduler.get_tcb (i);
-            -- TODO start condition
             if (a_tcb.status = task_pended) then
                if user_level_scheduler.get_current_time mod a_tcb.period = 0
                then
@@ -235,14 +238,8 @@ package body user_level_schedulers is
       -- Computes the laxity
       --
       function laxity (a_tcb : tcb) return Integer is
-         result : Integer;
       begin
-         result := deadline (a_tcb) - get_current_time - a_tcb.capacity;
-         if (result < 0) then
-            Put_Line ("laxity < 0");
-            raise Program_Error ;
-         end if;
-         return result;
+         return deadline (a_tcb) - get_current_time - a_tcb.capacity;
       end;
 
       -- Returns true if a deadline was missed
@@ -268,6 +265,31 @@ package body user_level_schedulers is
 
             return False;
       end deadline_missed;
+
+      -- Returns true if not enough CPU time is left to guarantee that 
+      -- task finishes before its deadline
+      --
+      function not_enough_cpu_time return Boolean is
+         a_tcb : tcb;
+      begin
+         for i in 1 .. number_of_task loop
+            a_tcb := tcbs (i);
+            if (a_tcb.status = task_ready and laxity (a_tcb) < 0)
+            then
+               Put_Line 
+                    ("Task" &
+                     Integer'Image (i) &
+                     " will miss deadline" &
+                     Integer'Image (deadline (a_tcb)) &
+                     " because left cpu time is" &
+                     Integer'Image (deadline (a_tcb) - get_current_time) &
+                     " and required time is" &
+                     Integer'Image (a_tcb.capacity));
+               return True;
+            end if;
+         end loop;
+         return False;
+      end not_enough_cpu_time;
 
       -- Print task election history
       --

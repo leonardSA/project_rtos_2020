@@ -45,6 +45,7 @@ package user_level_schedulers is
       function deadline (a_tcb : tcb) return Integer;
       function laxity (a_tcb : tcb) return Integer;
       function deadline_missed return Boolean;
+      function not_enough_cpu_time return Boolean;
       procedure print_history (elected_task_history : task_history);
    private
       tcbs              : tcb_type;
