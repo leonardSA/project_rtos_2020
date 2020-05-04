@@ -27,7 +27,7 @@ package user_level_schedulers is
    protected user_level_scheduler is
       procedure set_task_status (id : Integer; s : task_status);
       procedure set_task_start (id : Integer; t : Integer);
-      procedure set_fix_priorities;
+      procedure set_critical_priority;
       function get_tcb (id : Integer) return tcb;
       procedure new_user_level_task
         (id             : in out Integer;

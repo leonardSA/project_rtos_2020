@@ -113,7 +113,7 @@ package body user_level_schedulers is
 
       -- Sets criticality and user priority
       --
-      procedure set_fix_priorities is
+      procedure set_critical_priority is
          id                : Integer := 0;
          smallest_period   : Integer := Integer'Last;
          size              : Integer := 0;
@@ -151,7 +151,7 @@ package body user_level_schedulers is
                tcbs (i).critical := task_critical_low;
             end if;
          end loop;
-      end set_fix_priorities;
+      end set_critical_priority;
 
       function get_tcb (id : Integer) return tcb is
       begin
