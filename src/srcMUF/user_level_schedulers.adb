@@ -16,6 +16,8 @@ package body user_level_schedulers is
       elected_task_history    : task_history (0 .. duration_in_time_unit);
    begin
 
+      user_level_scheduler.set_critical_priority;
+
       -- Loop on tcbs, and select tasks which are ready
       -- and which have the earliest deadline
       --
