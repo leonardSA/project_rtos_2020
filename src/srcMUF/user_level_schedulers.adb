@@ -164,6 +164,7 @@ package body user_level_schedulers is
          capacity       : in Integer;
          critical_delay : in Integer;
          start          : in Integer;
+         user_priority  : in Integer;
          subprogram     : in run_subprogram)
       is
          a_tcb : tcb;
@@ -183,6 +184,7 @@ package body user_level_schedulers is
          a_tcb.capacity        := capacity;
          a_tcb.critical_delay  := critical_delay;  
          a_tcb.start           := start;
+         a_tcb.user_priority   := user_priority;
          a_tcb.the_task        :=
            new user_level_task (number_of_task, subprogram);
          tcbs (number_of_task) := a_tcb;

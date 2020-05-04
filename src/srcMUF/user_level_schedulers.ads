@@ -8,7 +8,6 @@ package user_level_schedulers is
 
    type task_status is (task_ready, task_pended);
    type task_criticality is (task_critical_high, task_critical_low);
-   subtype task_priority is Integer Range 1 .. max_user_level_task;
 
    type tcb is record
       the_task       : user_level_task_ptr;
@@ -17,7 +16,7 @@ package user_level_schedulers is
       start          : Integer;
       capacity       : Integer;
       status         : task_status;
-      priority       : task_priority;
+      user_priority  : Integer;
       critical       : task_criticality;
    end record;
 
@@ -35,6 +34,7 @@ package user_level_schedulers is
          capacity       : in Integer;
          critical_delay : in Integer;
          start          : in Integer;
+         user_priority  : in Integer;
          subprogram     : in run_subprogram);
       function get_number_of_task return Integer;
       function get_current_time return Integer;
