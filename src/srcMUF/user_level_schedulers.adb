@@ -180,9 +180,14 @@ package body user_level_schedulers is
       -- Computes the laxity
       --
       function laxity (a_tcb : tcb) return Integer is
+         result : Integer;
       begin
-         -- TODO
-         return 0;
+         result := deadline (a_tcb) - get_current_time - a_tcb.capacity;
+         if (result < 0) then
+            Put_Line ("laxity < 0");
+            raise Program_Error ;
+         end if;
+         return result;
       end;
 
       -- Returns true if a deadline was missed
