@@ -4,6 +4,7 @@
 - 1. Manuel d'utilisation
 - 2. Ordonnancement Rate Monotonic 
 - 3. Ordonnancement Earliest Deadline First 
+- 4. Ordonnancement Maximum Urgency First
 
 [Énoncé du projet.](http://beru.univ-brest.fr/~singhoff/ENS/UE_temps_reel/TP-ADA/tp.html#Ref23)
 
@@ -52,7 +53,7 @@ Le calcul de la priorité est dynamique: la tâche avec la date d'échéance la 
 proche est la plus prioritaire.
 
 Ordonnancement de trois types de tâches:
-- **périodique:** c.f. ordonnancement RM.
+- **périodique.**
 - **apériodique:** tâche qui ne s'exécute qu'une unique.
 - **sporadique:** tâche qui a une chance de se réveiller et dont le réveil 
 doit attendre un délai minimal après que la tâche devienne prête.
@@ -74,7 +75,7 @@ Champs du type `tcb`:
 
 Structure du programme:
 1. Élection de la tâche selon sa date d'échéance.
-2. Lancement de la tâche
+2. Lancement de la tâche.
 3. Vérification qu'aucune tâche n'a manqué son délai.
 4. Passage au temps suivant.
 5. Passer les tâches à prêtes:
@@ -124,7 +125,7 @@ Résultat obtenu:
 | **REALEASED**|1,2,3|     |     |     |     |     |     |     |     |     | 1,2 |     |     |     |     |     |     |     |     |     | 
 
 
-**Test 2: `example_edf_3`**
+**Test 3: `example_edf_3`**
 
 Tâches:
 - 1: périodique, début en 0, période de 10, capacité de 9 et délai critique de 10.
@@ -139,3 +140,83 @@ Résultat obtenu:
 | **REALEASED**| 1   |     |     |     |     | 3   |     |     |     |     | 1,2 |     |     |     |     |     |     |     |     |     |     | 
 | **MISSED**   |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |1    | 
 
+
+## Ordonnancement MUF
+
+### Caractéristiques
+
+Il y a trois types de priorités:
+- deux fixes: user priority et priorité critique.
+- une dynamique: calcul de la laxité.
+Ces priorités sont telles que `user priority < priorité dynamique < priorité critique.
+
+Cet ordonnancement peu mais ne supporte pas par défaut les tâches apériodiques.
+On ne traite uniquement les tâches périodiques.
+
+### Mise en oeuvre
+
+Champs du type `tcb`:
+| Champs         | Description                                                                                              |
+|----------------|----------------------------------------------------------------------------------------------------------|
+| the_task       | Pointeur vers la tâche à exécuter                                                                        |
+| period         | Période de la tâche                                                                                      |
+| critical_delay | Délai critique de la tâche                                                                               |
+| start          | Date de début de la tâche                                                                                |
+| capacity       | Capacité de la tâche                                                                                     |
+| status         | État de la tâche (en attente ou prête)                                                                   |
+| user_priority  | Niveau de priorité donnée à la tâche par l'utilisateur (plus elle est grande, plus elle est prioritaire) |
+| critical       | Niveau critique de la tâche (niveau bas ou haut)                                                         |
+
+
+Structure du programme:
+1. Affectation des priorités critiques hautes et basses.
+2. Élection de la tâche (il faut qu'elle soit prête):
+   - Premier critère: choisi la plus haute priorité critique.
+   - Deuxième critère: choisi la plus basse priorité dynamique (laxité minimale).
+   - Troisième critère: choisi  la plus grande user priorité.
+   - Si tous les critères sont égaux, on prend le premier arrivé.
+3. Vérification qu'aucune tâche ne dépassera son délai.
+4. Lancement de la tâche.
+5. Vérification qu'aucune tâche n'a dépassé son délai.
+6. Passage au temps suivant.
+7. Passage des tâches à prêt dont la période est un multiple du temps courant.
+
+### Tests
+
+**Test 1: `example_muf_1`**
+
+Tâches:
+- 1: début en 0, période de 5, capacité de 2, délai critique de 5 et un user priority de 4. 
+- 2: début en 0, période de 10, capacité de 4, délai critique de 10 et un user priority de 4.
+- 3: début en 0, période de 20, capacité de 1, délai critique de 20 et un user priority de 2.
+
+Résultat obtenu:
+|              |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |     |
+|:---:         |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **TIME**     | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  | 13  | 14  |15   |16   | 17  | 18  | 19  | 
+| **TASKS**    | 1   | 1   | 2   | 2   | 2   | 2   | 1   | 1   | 3   | 0   | 1   | 1   | 2   | 2   | 2   | 2   | 1   | 1   | 0   | 0   | 
+| **REALEASED**|1,2,3|     |     |     |     | 1   |     |     |     |     | 1,2 |     |     |     |     | 1   |     |     |     |     | 
+
+
+**Test 2: `example_muf_2`**
+
+Ce test est celui réalisé dans l'article.
+
+Tâches:
+- 1: début en 0, période de 6, capacité de 2, délai critique de 6 et un user priority de 4. 
+- 2: début en 0, période de 10, capacité de 4, délai critique de 10 et un user priority de 3.
+- 3: début en 0, période de 12, capacité de 3, délai critique de 12 et un user priority de 2.
+- 4: début en 0, période de 15, capacité de 4, délai critique de 15 et un user priority de 1.
+
+Résultat obtenu:
+|              |       |     |     |     |     |     |     |     |     |     |     |     |     |
+|:---:         |:---:  |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **TIME**     | 0     | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  |
+| **TASKS**    | 1     | 1   | 2   | 2   | 2   | 2   | 3   | 3   | 3   | 1   | 1   | 4   | 4   |
+| **REALEASED**|1,2,3,4|     |     |     |     |     | 1   |     |     |     |   2 |     | 1,3 |
+| **ABORT**    |       |     |     |     |     |     |     |     |     |     |     |     |VRAI |
+
+Raison de l'arrêt prématuré:
+```
+Task 4 will miss deadline 15 because left cpu time is 3 and required time is 4
+```
