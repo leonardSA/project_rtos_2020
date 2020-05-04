@@ -7,11 +7,13 @@ package body user_level_schedulers is
    -- Earliest deadline first scheduling
    --
    procedure maximum_urgency_first_schedule (duration_in_time_unit : Integer) is
-      a_tcb                : tcb;
-      no_ready_task        : Boolean;
-      elected_task         : tcb;
-      earliest_deadline    : Integer;
-      elected_task_history : task_history (0 .. duration_in_time_unit);
+      a_tcb                   : tcb;
+      no_ready_task           : Boolean;
+      elected_task            : tcb;
+      maximal_critical_level  : task_criticality;
+      minimal_laxity          : Integer;
+      highest_user_priority   : Integer;
+      elected_task_history    : task_history (0 .. duration_in_time_unit);
    begin
 
       -- Loop on tcbs, and select tasks which are ready
@@ -22,19 +24,36 @@ package body user_level_schedulers is
          -- Find the next task to run
          --
          no_ready_task     := True;
-         earliest_deadline := Integer'Last;
+         minimal_laxity    := Integer'Last;
+         highest_user_priority   := Integer'First;
+         maximal_critical_level  := task_critical_low;
          for i in 1 .. user_level_scheduler.get_number_of_task loop
             a_tcb := user_level_scheduler.get_tcb (i);
             if (a_tcb.status = task_ready) then
                 no_ready_task := False;
-                -- TODO conditions
-                if (a_tcb.start + a_tcb.critical_delay < earliest_deadline) 
+                if (maximal_critical_level < a_tcb.critical) 
                 then
+                   maximal_critical_level := a_tcb.critical;
                    elected_task_history 
                       (user_level_scheduler.get_current_time) := i;
-                   earliest_deadline := user_level_scheduler.get_current_time 
-                                      + a_tcb.critical_delay;
-                   elected_task      := a_tcb;
+                   elected_task := a_tcb;
+                elsif (maximal_critical_level = a_tcb.critical) 
+                then
+                  if (user_level_scheduler.laxity (a_tcb) < minimal_laxity) 
+                  then
+                     minimal_laxity := user_level_scheduler.laxity (a_tcb);
+                     elected_task_history 
+                      (user_level_scheduler.get_current_time) := i;
+                     elected_task := a_tcb;
+                  elsif (user_level_scheduler.laxity (a_tcb) = minimal_laxity) 
+                  then
+                     if (highest_user_priority < a_tcb.user_priority) then
+                        highest_user_priority := a_tcb.user_priority;
+                        elected_task_history 
+                           (user_level_scheduler.get_current_time) := i;
+                        elected_task := a_tcb;
+                     end if;
+                  end if;
                 end if;
             end if;
          end loop;
