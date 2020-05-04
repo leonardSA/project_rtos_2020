@@ -7,7 +7,10 @@ package user_level_schedulers is
    max_user_level_task        : constant Integer := 100;
 
    type task_status is (task_ready, task_pended);
-   type task_criticality is (task_critical_high, task_critical_low);
+   subtype task_criticality is Integer Range 0..1;
+
+   task_critical_high         : constant task_criticality := 1;
+   task_critical_low          : constant task_criticality := 0;
 
    type tcb is record
       the_task       : user_level_task_ptr;
