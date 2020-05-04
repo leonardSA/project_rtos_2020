@@ -36,6 +36,8 @@ package body user_level_schedulers is
                 if (maximal_critical_level < a_tcb.critical) 
                 then
                    maximal_critical_level := a_tcb.critical;
+                   minimal_laxity := user_level_scheduler.laxity (a_tcb);
+                   highest_user_priority := a_tcb.user_priority;
                    elected_task_history 
                       (user_level_scheduler.get_current_time) := i;
                    elected_task := a_tcb;
@@ -44,6 +46,7 @@ package body user_level_schedulers is
                   if (user_level_scheduler.laxity (a_tcb) < minimal_laxity) 
                   then
                      minimal_laxity := user_level_scheduler.laxity (a_tcb);
+                     highest_user_priority := a_tcb.user_priority;
                      elected_task_history 
                       (user_level_scheduler.get_current_time) := i;
                      elected_task := a_tcb;
@@ -170,9 +173,9 @@ package body user_level_schedulers is
          for i in 1 .. number_of_task loop
             processor_usage := processor_usage + tcbs (id_array (i)).capacity;
             if (processor_usage <= 100) then
-               tcbs (i).critical := task_critical_high;
+               tcbs (id_array (i)).critical := task_critical_high;
             else
-               tcbs (i).critical := task_critical_low;
+               tcbs (id_array (i)).critical := task_critical_low;
             end if;
          end loop;
       end set_critical_priority;
