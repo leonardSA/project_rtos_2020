@@ -89,7 +89,7 @@ package body user_level_schedulers is
                if user_level_scheduler.get_current_time mod a_tcb.period = 0
                then
                   Put_Line
-                    ("Periodic task" &
+                    ("Task" &
                      Integer'Image (i) &
                      " is released at time " &
                      Integer'Image (user_level_scheduler.get_current_time));
@@ -253,13 +253,13 @@ package body user_level_schedulers is
             for i in 1 .. number_of_task loop
                a_tcb := tcbs(i);
                if (a_tcb.status = task_ready
-                  and a_tcb.start + a_tcb.critical_delay <= get_current_time) 
+                  and deadline (a_tcb) <= get_current_time) 
                then
                   Put_Line 
                        ("Task" &
                         Integer'Image (i) &
                         " missed deadline" &
-                        Integer'Image (a_tcb.start + a_tcb.critical_delay) &
+                        Integer'Image (deadline (a_tcb)) &
                         " at time" &
                         Integer'Image (user_level_scheduler.get_current_time));
                   return True;
