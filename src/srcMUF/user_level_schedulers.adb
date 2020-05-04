@@ -114,9 +114,43 @@ package body user_level_schedulers is
       -- Sets criticality and user priority
       --
       procedure set_fix_priorities is
+         id                : Integer := 0;
+         smallest_period   : Integer := Integer'Last;
+         size              : Integer := 0;
+         id_array          : array (1 .. max_user_level_task) of Integer;
+         id_exist          : array (1 .. max_user_level_task) of Boolean;
+         processor_usage   : Integer := 0;
       begin
-         -- TODO
-         raise Constraint_Error;
+         -- init id_exist 
+         for i in 1 .. number_of_task loop
+            id_exist (i) := False;
+         end loop;
+
+         while size < number_of_task loop
+            -- search for minimum
+            smallest_period := Integer'Last;
+            for i in 1 .. number_of_task loop
+               if (id_exist (i) = False and tcbs (i).period < smallest_period) 
+               then
+                  id := i;
+                  smallest_period := tcbs (i).period;
+               end if;
+            end loop;
+            -- add to array
+            size := size + 1;
+            id_array (size) := id;
+            id_exist (id) := True;
+         end loop;
+
+         -- assign critical level
+         for i in 1 .. number_of_task loop
+            processor_usage := processor_usage + tcbs (id_array (i)).capacity;
+            if (processor_usage <= 100) then
+               tcbs (i).critical := task_critical_high;
+            else
+               tcbs (i).critical := task_critical_low;
+            end if;
+         end loop;
       end set_fix_priorities;
 
       function get_tcb (id : Integer) return tcb is
