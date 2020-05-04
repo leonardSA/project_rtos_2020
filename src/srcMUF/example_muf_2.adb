@@ -8,7 +8,7 @@ with my_subprograms; use my_subprograms;
 procedure example_muf_2 is
 
 begin
-   -- Example with each type of task
+   -- Example with deadline not met.
    -- T1: S=0  P=6   C=2   critD=P  usrP=4
    -- T2: S=0  P=10  C=4   critD=P  usrP=3
    -- T3: S=0  P=12  C=3   critD=P  usrP=2
