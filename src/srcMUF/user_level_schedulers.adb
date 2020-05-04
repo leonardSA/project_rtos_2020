@@ -174,8 +174,7 @@ package body user_level_schedulers is
       --
       function deadline (a_tcb : tcb) return Integer is
       begin
-         -- TODO
-         return 0;
+         return a_tcb.start + a_tcb.critical_delay;
       end; 
 
       -- Computes the laxity
